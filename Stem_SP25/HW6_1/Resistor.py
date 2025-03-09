@@ -8,12 +8,11 @@ class Resistor():
         :param i: current in amps (float)
         :param name: name of resistor by alphabetically ordered pair of node names
         """
-        #region attributes
-        #JES Missing Code = R
-        #JES Missing Code = i
-        #JES Missing Code = self.DeltaV()
-        #JES Missing Code = name
-        #endregion
+        # Initialize attributes
+        self.Resistance = R  # JES Missing Code replaced
+        self.Current = i  # JES Missing Code replaced
+        self.Name = name  # JES Missing Code replaced
+        self.V = self.DeltaV()  # Calculate the voltage drop
     #endregion
 
     #region methods

@@ -60,9 +60,9 @@ class ResistorNetwork():
         :param Txt: [string] the lines of the text file
         :return: a resistor object
         """
-        R = #JES Missing Code  # instantiate a new resistor object
+        R =Resistor()  # instantiate a new resistor object
         N += 1  # <Resistor> was detected, so move to next line in Txt
-        txt = #JES Missing Code  # retrieve line from Txt and make it lower case using Txt[N].lower()
+        txt =Txt[N].lower()   # retrieve line from Txt and make it lower case using Txt[N].lower()
         while "resistor" not in txt:
             if "name" in txt:
                 R.Name = txt.split('=')[1].strip()
@@ -125,7 +125,7 @@ class ResistorNetwork():
         :return:
         """
         # need to set the currents to that Kirchoff's laws are satisfied
-        i0 = #JES MISSING CODE  #define an initial guess for the currents in the circuit
+        i0 =[1.0, 1.0, 1.0]  # initial guess for [I1, I2, I3]  #define an initial guess for the currents in the circuit
         i = fsolve(self.GetKirchoffVals,i0)
         # print output to the screen
         print("I1 = {:0.1f}".format(i[0]))
@@ -140,6 +140,11 @@ class ResistorNetwork():
         KCL:  The net current flow into a node in a circuit should be zero
         :param i: a list of currents relevant to the circuit
         :return: a list of loop voltage drops and node currents
+                For Network 1, the assignments are as follows:
+          - I1 flows in resistors 'ad' and 'bc'
+          - I2 flows in resistor 'ce'
+          - I3 flows in resistor 'cd'
+        The node equation at node c is: I1 + I2 - I3 = 0.
         """
         # set current in resistors in the top loop.
         self.GetResistorByName('ad').Current=i[0]  #I_1 in diagram
@@ -150,8 +155,9 @@ class ResistorNetwork():
         #calculate net current into node c
         Node_c_Current = sum([i[0],i[1],-i[2]])
 
-        KVL = self.GetLoopVoltageDrops()  # two equations here
-        KVL.append(Node_c_Current)  # one equation here
+        # Get the KVL equations from the loop definitions in the file
+        KVL = self.GetLoopVoltageDrops()  # two equations here # returns a list of voltage residuals for each loop
+        KVL.append(Node_c_Current)  # one equation here  # append the node current equation residual
         return KVL
 
     def GetElementDeltaV(self, name):
@@ -200,6 +206,7 @@ class ResistorNetwork():
         for r in self.Resistors:
             if r.Name == name:
                 return r
+        return None
     #endregion
 
 class ResistorNetwork_2(ResistorNetwork):
@@ -212,11 +219,46 @@ class ResistorNetwork_2(ResistorNetwork):
 
     #region methods
     def AnalyzeCircuit(self):
-        #JES Missing Code
-        pass
+        """
+        Override AnalyzeCircuit for the modified circuit.
+        We still solve for [I1, I2, I3] in the main branches,
+        but the node equation is altered because of the parallel resistor.
+        """
+        i0 = [1.0, 1.0, 1.0]  # initial guess remains three unknowns
+        i = fsolve(self.GetKirchoffVals, i0)
+        print("I1 = {:0.1f}".format(i[0]))
+        print("I2 = {:0.1f}".format(i[1]))
+        print("I3 = {:0.1f}".format(i[2]))
+        return i
+
 
     def GetKirchoffVals(self,i):
-        #JES Missing Code
-        pass
+        """
+        Override the base method to account for the extra resistor in parallel with the
+        32V source. We assume:
+          - I1 flows in 'ad' and 'bc'
+          - I2 flows in 'ce'
+          - I3 flows in 'cd'
+        In addition, the resistor in parallel with the voltage source (named 'de_r')
+        carries a fixed current given by Ohm's law:
+            I_de_r = 32V / 5Ω = 6.4 A.
+        Thus, at the relevant node (here node c is used as before) the current balance becomes:
+            I1 + I2 - I3 - I_de_r = 0.
+        """
+        # assign currents to main branches as before
+        self.GetResistorByName('ad').Current = i[0]
+        self.GetResistorByName('bc').Current = i[0]
+        self.GetResistorByName('cd').Current = i[2]
+        self.GetResistorByName('ce').Current = i[1]
+        # Fixed current through the additional resistor branch:
+        I_de_r = 32.0 / 5.0  # 6.4 A
+
+        # Modify the node equation to subtract the extra branch current
+        Node_c_Current = i[0] + i[1] - i[2] - I_de_r
+
+        # Use the same loop voltage drops as defined in the file.
+        KVL = self.GetLoopVoltageDrops()
+        KVL.append(Node_c_Current)
+        return KVL
     #endregion
 #endregion
