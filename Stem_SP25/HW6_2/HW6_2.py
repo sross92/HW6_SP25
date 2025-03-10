@@ -19,14 +19,14 @@ def main():
     Step 2: calculate the flow rates in each pipe using fsolve
     Step 3: output results
     Step 4: check results against expected properties of zero head loss around a loop and mass conservation at nodes.
-    :return:
+    :return: None
     '''
     #instantiate a Fluid object to define the working fluid as water
-    water= #$JES MISSING CODE$  #
+    water= Fluid()  # Default properties (mu=0.00089, rho=1000) are for water.
     roughness = 0.00025  # in meters
 
     #instantiate a new PipeNetwork object
-    PN=#$JES MISSING CODE$  #
+    PN=PipeNetwork()  #
     #add Pipe objects to the pipe network (see constructor for Pipe class)
     PN.pipes.append(Pipe('a','b',250, 300, roughness, water))
     PN.pipes.append(Pipe('a','c',100, 200, roughness, water))

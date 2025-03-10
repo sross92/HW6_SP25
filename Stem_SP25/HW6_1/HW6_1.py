@@ -1,21 +1,29 @@
+#Built off Dr.Smays HW6 Stem Files
+#Used ChatGPT for Debugging and Logic Check
 #region imports
-from ResistorNetwork import ResistorNetwork, ResistorNetwork_2
+from ResistorNetwork import ResistorNetwork, ResistorNetwork_2 #import text files from ResistorNetwork program import
 #endregion
 
 # region Function Definitions
 def main():
     """
     This program solves for the unknown currents in the circuit of the homework assignment.
-    :return: nothing
-        This program solves for the unknown currents in the resistor network.
-    For Network 1, we read the file "ResistorNetwork.txt".
-    For Network 2, a modified file "ResistorNetwork_2.txt" includes a 5Ω resistor
-    in parallel with the 32V source.
+    Network 1:
+        - Reads the resistor network configuration from "ResistorNetwork.txt".
+        - Analyzes the circuit to solve for the unknown currents using Kirchhoff's laws.
+    Network 2:
+        - Reads the modified configuration from "ResistorNetwork_2.txt", which includes an additional
+          5Ω resistor in parallel with the 32V source.
+        - Uses a subclass (ResistorNetwork_2) to override circuit analysis methods (demonstrating polymorphism).
+
+    The function prints the calculated currents for both networks.
+
+    :return: None
     """
 
     print("Network 1:")
     # Instantiate a ResistorNetwork object and build its network from file
-    Net=ResistorNetwork  #Instantiate a ResistorNetwork object
+    Net=ResistorNetwork()  #Instantiate a ResistorNetwork object
     Net.BuildNetworkFromFile("ResistorNetwork.txt") #call the function from Net that builds the resistor network from a text file
     IVals=Net.AnalyzeCircuit()
 

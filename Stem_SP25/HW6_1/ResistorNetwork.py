@@ -1,3 +1,5 @@
+#Built off Dr.Smays HW6 Stem Files
+#Used ChatGPT for Debugging and Logic Check
 #region imports
 from scipy.optimize import fsolve
 from Resistor import Resistor
@@ -8,6 +10,14 @@ from Loop import Loop
 #region class definitions
 class ResistorNetwork():
     #region constructor
+    """
+    Represents a network of electrical elements including resistors, voltage sources, and loops.
+
+    Attributes:
+        Loops (list): A list of Loop objects representing the closed loops in the circuit.
+        Resistors (list): A list of Resistor objects in the network.
+        VSources (list): A list of VoltageSource objects in the network.
+    """
     def __init__(self):
         """
         The resistor network consists of Loops, Resistors and Voltage Sources.
@@ -121,8 +131,15 @@ class ResistorNetwork():
 
     def AnalyzeCircuit(self):
         """
-        Use fsolve to find currents in the resistor network.
-        :return:
+        Uses fsolve to solve for the unknown currents such that Kirchhoff's Voltage and Current Laws are satisfied.
+
+        For the network:
+          - I1 flows through resistors 'ad' and 'bc'.
+          - I2 flows through resistor 'ce'.
+          - I3 flows through resistor 'cd'.
+          - Kirchhoff's Current Law (KCL) at node c ensures I1 + I2 - I3 = 0.
+
+        :return: List of currents [I1, I2, I3].
         """
         # need to set the currents to that Kirchoff's laws are satisfied
         i0 =[1.0, 1.0, 1.0]  # initial guess for [I1, I2, I3]  #define an initial guess for the currents in the circuit
@@ -156,15 +173,16 @@ class ResistorNetwork():
         Node_c_Current = sum([i[0],i[1],-i[2]])
 
         # Get the KVL equations from the loop definitions in the file
-        KVL = self.GetLoopVoltageDrops()  # two equations here # returns a list of voltage residuals for each loop
-        KVL.append(Node_c_Current)  # one equation here  # append the node current equation residual
+        KVL = self.GetLoopVoltageDrops()   # returns a list of voltage residuals for each loop
+        KVL.append(Node_c_Current)    # append the node current equation residual
         return KVL
 
     def GetElementDeltaV(self, name):
         """
-        Need to retrieve either a resistor or a voltage source by name.
-        :param name:
-        :return:
+        Retrieves the voltage drop (or rise) for an element (resistor or voltage source) by name.
+
+        :param name: The element's name identifier.
+        :return: The voltage change (float) with appropriate sign.
         """
         for r in self.Resistors:
             if name == r.Name:
@@ -199,9 +217,10 @@ class ResistorNetwork():
 
     def GetResistorByName(self, name):
         """
-        A way to retrieve a resistor object from self.Resistors based on resistor name
-        :param name:
-        :return:
+        Retrieves a resistor object by its name.
+
+        :param name: The identifier of the resistor.
+        :return: The corresponding Resistor object, or None if not found.
         """
         for r in self.Resistors:
             if r.Name == name:
@@ -211,6 +230,11 @@ class ResistorNetwork():
 
 class ResistorNetwork_2(ResistorNetwork):
     #region constructor
+    """
+    A subclass of ResistorNetwork that represents the modified circuit with an additional
+    resistor in parallel with the 32V source. This class overrides certain methods to account for
+    the fixed current through the additional branch.
+    """
     def __init__(self):
         super().__init__()  # runs the constructor of the parent class
         #region attributes

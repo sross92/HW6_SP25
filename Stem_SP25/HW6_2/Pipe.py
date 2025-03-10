@@ -29,7 +29,7 @@ class Pipe():
         # other calculated properties
         self.d=D/1000.0 #diameter in m
         self.relrough = self.r/self.d #calculate relative roughness for easy use later
-        self.A=math.pi/4.0*self.d**2 #calculate pipe cross sectional area for easy use later
+        self.A=math.pi/4.0*self.d**2 #calculate pipe cross-sectional area (m^2) for easy use later
         self.Q=10 #working in units of L/s, just an initial guess
         self.vel=self.V()  #calculate the initial velocity of the fluid
         self.reynolds=self.Re() #calculate the initial reynolds number
@@ -42,15 +42,17 @@ class Pipe():
         Calculate average velocity in the pipe for volumetric flow self.Q
         :return:the average velocity in m/s
         '''
-        self.vel= #$JES MISSING CODE$  # the average velocity is Q/A (be mindful of units)
+        # Convert Q from L/s to m³/s (1 L/s = 0.001 m³/s) then divide by area.
+        self.vel= (self.Q * 0.001) / self.A   # the average velocity is Q/A (be mindful of units)
         return self.vel
 
     def Re(self):
         '''
-        Calculate the reynolds number under current conditions.
-        :return:
+        Calculate the Reynolds number under current conditions.
+        Reynolds number: Re = (rho * V * d) / mu.
+        :return: the Reynolds number.
         '''
-        self.reynolds= #$JES MISSING CODE$ # Re=rho*V*d/mu, be sure to use V() so velocity is updated.
+        self.reynolds= self.fluid.rho * self.V() * self.d / self.fluid.mu # Re=rho*V*d/mu, be sure to use V() so velocity is updated.
         return self.reynolds
 
     def FrictionFactor(self):
@@ -91,10 +93,12 @@ class Pipe():
     def frictionHeadLoss(self):  # calculate headloss through a section of pipe in m of fluid
         '''
         Use the Darcy-Weisbach equation to find the head loss through a section of pipe.
+        Head loss, hl = f * (L/d) * (V²) / (2*g)
+        :return: head loss in meters of fluid.
         '''
         g = 9.81  # m/s^2
         ff = self.FrictionFactor()
-        hl = #$JES MISSING CODE$ # calculate the head loss in m of water
+        hl = ff * (self.length / self.d) * (self.V() ** 2) / (2 * g) # calculate the head loss in m of water
         return hl
 
     def getFlowHeadLoss(self, s):
@@ -105,14 +109,14 @@ class Pipe():
         '''
         #while traversing a loop, if s = startNode I'm traversing in same direction as positive pipe
         nTraverse= 1 if s==self.startNode else -1
-        #if flow is positive sense, scalar =1 else =-1
+        #if flow is positive sense (from startNode to endNode), factor = 1; otherwise, -1.
         nFlow=1 if self.Q >= 0 else -1
         return nTraverse*nFlow*self.frictionHeadLoss()
 
     def Name(self):
         '''
-        Gets the pipe name.
-        :return:
+        Gets the pipe name as "start-end".
+        :return: the pipe name.
         '''
         return self.startNode+'-'+self.endNode
 

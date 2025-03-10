@@ -1,6 +1,7 @@
 #region class definitions
 class Node():
     #region constructor
+
     def __init__(self, Name='a', Pipes=[], ExtFlow=0):
         '''
         A node in a pipe network.
@@ -18,10 +19,12 @@ class Node():
     #region methods
     def getNetFlowRate(self):
         '''
-        Calculates the net flow rate into this node in L/s
-        # :return: the net flow rate into this node
+        Calculates the net flow rate into this node in L/s.
+        The net flow is the sum of the external flow and the flows from each connected pipe.
+
+        :return: Net flow rate (in L/s) into the node.
         '''
-        Qtot=#$JES MISSING CODE$  #count the external flow first
+        Qtot= self.extFlow  #count the external flow first
         for p in self.pipes:
             #retrieves the pipe flow rate (+) if into node (-) if out of node.  see class for pipe.
             Qtot+=p.getFlowIntoNode(self.name)
